@@ -99,6 +99,28 @@ export const moviesStore = {
     }
   },
 
+  // Actualizar rating
+  async rateMovie(movie: Movie, rating: number) {
+    
+    // Validar que el rating está entre 0 y 5.
+    if (rating < 0 || rating > 5) return;
+    
+    // Guardar el valor anterior por si hubiera algún error
+    const previousRating = movie.rating;
+
+    // Optimistic update
+    movie.rating = rating;
+
+    try {
+      // Llamar a la API
+      await api.rateMovie(movie.id, rating);
+    } catch (e) {
+      // Rollback en caso de fallo
+      movie.rating = previousRating;
+      error = e instanceof Error ? e.message : 'Error al actualizar rating';
+    }
+  },
+
   // Limpiar estado completo
   reset() {
     movies = [];

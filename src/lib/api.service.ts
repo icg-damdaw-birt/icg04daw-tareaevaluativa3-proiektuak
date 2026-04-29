@@ -128,6 +128,6 @@ export const api = {
   // Alterna el estado de favorito de una película.
   toggleFavorite: (id: string) =>
     request<Movie>(`/api/movies/${id}/favorite`, { method: 'PATCH' }),
-
-  // TODO (UD4 - Ejercicio): rateMovie
+  rateMovie: (id: string, rating: number) =>
+    request<Movie>(`/api/movies/${id}/rating`, { method: 'PATCH', body: { rating }}),
 };
