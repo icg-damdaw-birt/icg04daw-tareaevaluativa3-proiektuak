@@ -18,6 +18,7 @@ vi.mock('./api.service', () => ({
     updateMovie: vi.fn(),
     deleteMovie: vi.fn(),
     toggleFavorite: vi.fn(),
+    rateMovie: vi.fn(),
   }
 }));
 
@@ -292,6 +293,88 @@ describe('Movies Store (Svelte 5 Runes)', () => {
       expect(ok).toBe(false);
       expect(moviesStore.error).toBe('Not found');
       expect(moviesStore.mutating).toBe(false);
+    });
+  });
+
+    // ─── rateMovie ───────────────────────────────────────────
+  describe('rateMovie()', () => {
+    it('debería añadir el rating a una película sin rating', async () => {
+      // ARRANGE
+      vi.mocked(api.getMovies).mockResolvedValue([
+      { id: '1', title: 'Matrix', director: 'Wachowski', year: 1999 }
+      ]);
+      await moviesStore.loadMovies();
+
+      vi.mocked(api.rateMovie).mockResolvedValue(
+      { id: '1', title: 'Matrix', director: 'Wachowski', year: 1999, rating: 4 }
+    );
+
+      // ACT
+      const movie = moviesStore.movies[0];
+      await moviesStore.rateMovie(movie, 4);
+
+      // ASSERT
+      expect(api.rateMovie).toHaveBeenCalledWith('1', 4);
+      expect(movie.rating).toBe(4);
+    });
+
+    it('debería modificar (aumentar) el rating de una película que ya tiene rating', async () => {
+      // ARRANGE
+      vi.mocked(api.getMovies).mockResolvedValue([
+      { id: '1', title: 'Matrix', director: 'Wachowski', year: 1999, rating: 3 }
+      ]);
+      await moviesStore.loadMovies();
+
+      vi.mocked(api.rateMovie).mockResolvedValue(
+      { id: '1', title: 'Matrix', director: 'Wachowski', year: 1999, rating: 5 }
+    );
+
+      // ACT
+      const movie = moviesStore.movies[0];
+      await moviesStore.rateMovie(movie, 5);
+
+      // ASSERT
+      expect(api.rateMovie).toHaveBeenCalledWith('1', 5);
+      expect(movie.rating).toBe(5);
+    });
+
+    it('debería modificar (reducir) el rating de una película que ya tiene rating', async () => {
+      // ARRANGE
+      vi.mocked(api.getMovies).mockResolvedValue([
+      { id: '1', title: 'Matrix', director: 'Wachowski', year: 1999, rating: 5 }
+      ]);
+      await moviesStore.loadMovies();
+
+      vi.mocked(api.rateMovie).mockResolvedValue(
+      { id: '1', title: 'Matrix', director: 'Wachowski', year: 1999, rating: 3 }
+    );
+
+      // ACT
+      const movie = moviesStore.movies[0];
+      await moviesStore.rateMovie(movie, 3);
+
+      // ASSERT
+      expect(api.rateMovie).toHaveBeenCalledWith('1', 3);
+      expect(movie.rating).toBe(3);
+    });
+
+    it('debería hacer rollback en caso de error', async () => {
+      // ARRANGE
+      vi.mocked(api.getMovies).mockResolvedValue([
+      { id: '1', title: 'Matrix', director: 'Wachowski', year: 1999, rating: 5 }
+      ]);
+      await moviesStore.loadMovies();
+      
+      vi.mocked(api.rateMovie).mockRejectedValue(new Error('Error al actualizar rating'));
+
+      // ACT
+      const movie = moviesStore.movies[0];
+      await moviesStore.rateMovie(movie, 3);
+
+      // ASSERT
+      expect(moviesStore.error).toBe('Error al actualizar rating');
+      expect(api.rateMovie).toHaveBeenCalledWith('1', 3);
+      expect(movie.rating).toBe(5);
     });
   });
 });

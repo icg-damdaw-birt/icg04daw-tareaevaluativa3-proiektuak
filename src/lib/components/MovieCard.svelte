@@ -1,5 +1,6 @@
 ﻿<script lang="ts">
   import type { Movie } from '$lib/types';
+  import { moviesStore } from '$lib/movies.store.svelte';
 
   // Props con Svelte 5: sistema de tipos explícito y callbacks en lugar de eventos
   let { 
@@ -57,6 +58,21 @@
       >
         {movie.isFavorite ? '❤️' : '🤍'}
       </button>
+      
+      <div>
+        {#each [1, 2, 3, 4, 5] as star}
+          <button
+            onclick={() => moviesStore.rateMovie(movie, star)} 
+          >
+          {#if star <= (movie.rating ?? 0)}
+            <span class="text-yellow-400">★</span>
+          {:else}
+            <span class="text-gray-300">☆</span>
+          {/if}
+          </button>
+        {/each}
+      </div>
+
     </header>
 
     <div class="mt-auto text-sm text-slate-500">
