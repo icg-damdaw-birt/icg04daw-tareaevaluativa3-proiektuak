@@ -51,6 +51,8 @@ describe('API Service - Autenticación', () => {
       const email = 'test@example.com';
       const password = 'password123';
       const mockToken = 'fake-jwt-token';
+      const urlApi = import.meta.env.VITE_API_URL;
+      const urlCompleta = `${urlApi}${"/api/auth/login"}`;
 
       // Mock completo de la respuesta de fetch
       (globalThis.fetch as any).mockResolvedValueOnce({
@@ -71,7 +73,7 @@ describe('API Service - Autenticación', () => {
       
       // Verificamos la llamada a fetch
       const callArgs = (globalThis.fetch as any).mock.calls[0];
-      expect(callArgs[0]).toBe('http://localhost:3000/api/auth/login');
+      expect(callArgs[0]).toBe(urlCompleta);
       expect(callArgs[1].method).toBe('POST');
       expect(callArgs[1].body).toBe(JSON.stringify({ email, password }));
     });
@@ -130,6 +132,8 @@ describe('API Service - Autenticación', () => {
       // ARRANGE
       const email = 'nuevo@example.com';
       const password = 'password123';
+      const urlApi = import.meta.env.VITE_API_URL;
+      const urlCompleta = `${urlApi}${"/api/auth/register"}`;
 
       // Mock de registro exitoso (status 201)
       (globalThis.fetch as any).mockResolvedValueOnce({
@@ -148,7 +152,7 @@ describe('API Service - Autenticación', () => {
       expect(globalThis.fetch).toHaveBeenCalledTimes(1);
       
       const callArgs = (globalThis.fetch as any).mock.calls[0];
-      expect(callArgs[0]).toBe('http://localhost:3000/api/auth/register');
+      expect(callArgs[0]).toBe(urlCompleta);
       expect(callArgs[1].method).toBe('POST');
       expect(callArgs[1].body).toBe(JSON.stringify({ email, password }));
     });
@@ -188,6 +192,8 @@ describe('API Service - Autenticación', () => {
       // ARRANGE
       const token = 'valid-token';
       authToken.set(token);
+      const urlApi = import.meta.env.VITE_API_URL;
+      const urlCompleta = `${urlApi}${"/api/movies"}`;      
 
       // Mock de respuesta de películas
       (globalThis.fetch as any).mockResolvedValueOnce({
@@ -206,7 +212,7 @@ describe('API Service - Autenticación', () => {
       expect(globalThis.fetch).toHaveBeenCalledTimes(1);
       
       const callArgs = (globalThis.fetch as any).mock.calls[0];
-      expect(callArgs[0]).toBe('http://localhost:3000/api/movies');
+      expect(callArgs[0]).toBe(urlCompleta);
       expect(callArgs[1].method).toBe('GET');
       
       // Verificar que el header Authorization está presente
@@ -298,6 +304,8 @@ describe('API Service - Autenticación', () => {
       // ARRANGE
       const token = 'valid-token';
       authToken.set(token);
+      const urlApi = import.meta.env.VITE_API_URL;
+      const urlCompleta = `${urlApi}${"/api/movies/movie-1/favorite"}`;
 
       const mockMovie = {
         id: 'movie-1',
@@ -324,7 +332,7 @@ describe('API Service - Autenticación', () => {
       expect(globalThis.fetch).toHaveBeenCalledTimes(1);
 
       const callArgs = (globalThis.fetch as any).mock.calls[0];
-      expect(callArgs[0]).toBe('http://localhost:3000/api/movies/movie-1/favorite');
+      expect(callArgs[0]).toBe(urlCompleta);
       expect(callArgs[1].method).toBe('PATCH');
       expect(callArgs[1].body).toBeUndefined();
     });
